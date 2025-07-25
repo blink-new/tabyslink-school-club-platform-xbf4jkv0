@@ -18,45 +18,42 @@ import { cn } from '@/lib/utils'
 interface SidebarProps {
   isOpen: boolean
   onClose: () => void
+  activeTab?: string
+  onTabChange?: (tab: string) => void
 }
 
 const menuItems = [
   {
     title: 'Главная',
     icon: Home,
-    href: '/',
-    active: true
+    id: 'dashboard'
   },
   {
     title: 'Клубы',
     icon: Users,
-    href: '/clubs',
+    id: 'clubs',
     badge: '12'
   },
   {
     title: 'Мероприятия',
     icon: Calendar,
-    href: '/events',
+    id: 'events',
     badge: '5'
   },
   {
     title: 'ИИ-Ассистент',
     icon: Bot,
-    href: '/ai',
-    submenu: [
-      { title: 'Анализ клубов', href: '/ai/clubs' },
-      { title: 'Консультант по ВУЗам', href: '/ai/university' }
-    ]
+    id: 'ai-assistant'
   },
   {
     title: 'Достижения',
     icon: Trophy,
-    href: '/achievements'
+    id: 'achievements'
   },
   {
     title: 'Аналитика',
     icon: BarChart3,
-    href: '/analytics'
+    id: 'analytics'
   }
 ]
 
@@ -64,21 +61,21 @@ const bottomItems = [
   {
     title: 'Профиль',
     icon: User,
-    href: '/profile'
+    id: 'profile'
   },
   {
     title: 'Подписки',
     icon: CreditCard,
-    href: '/subscription'
+    id: 'subscription'
   },
   {
     title: 'Настройки',
     icon: Settings,
-    href: '/settings'
+    id: 'settings'
   }
 ]
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, activeTab = 'dashboard', onTabChange }: SidebarProps) {
   const [expandedItems, setExpandedItems] = useState<string[]>([])
 
   const toggleExpanded = (title: string) => {
@@ -87,6 +84,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         ? prev.filter(item => item !== title)
         : [...prev, title]
     )
+  }
+
+  const handleItemClick = (id: string) => {
+    if (onTabChange) {
+      onTabChange(id)
+    }
+    onClose()
   }
 
   return (
@@ -110,12 +114,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             {menuItems.map((item) => (
               <div key={item.title}>
                 <Button
-                  variant={item.active ? "secondary" : "ghost"}
+                  variant={activeTab === item.id ? "secondary" : "ghost"}
                   className={cn(
                     "w-full justify-start gap-3 h-10",
-                    item.active && "bg-tabys-light text-tabys-primary border border-tabys-primary/20"
+                    activeTab === item.id && "bg-tabys-light text-tabys-primary border border-tabys-primary/20"
                   )}
-                  onClick={() => item.submenu && toggleExpanded(item.title)}
+                  onClick={() => handleItemClick(item.id)}
                 >
                   <item.icon className="h-4 w-4" />
                   <span className="flex-1 text-left">{item.title}</span>
@@ -124,29 +128,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                       {item.badge}
                     </Badge>
                   )}
-                  {item.submenu && (
-                    <ChevronRight className={cn(
-                      "h-4 w-4 transition-transform",
-                      expandedItems.includes(item.title) && "rotate-90"
-                    )} />
-                  )}
                 </Button>
-
-                {/* Submenu */}
-                {item.submenu && expandedItems.includes(item.title) && (
-                  <div className="ml-6 mt-2 space-y-1">
-                    {item.submenu.map((subItem) => (
-                      <Button
-                        key={subItem.title}
-                        variant="ghost"
-                        size="sm"
-                        className="w-full justify-start text-sm text-gray-600 hover:text-tabys-primary"
-                      >
-                        {subItem.title}
-                      </Button>
-                    ))}
-                  </div>
-                )}
               </div>
             ))}
           </nav>
@@ -156,8 +138,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             {bottomItems.map((item) => (
               <Button
                 key={item.title}
-                variant="ghost"
-                className="w-full justify-start gap-3 h-10"
+                variant={activeTab === item.id ? "secondary" : "ghost"}
+                className={cn(
+                  "w-full justify-start gap-3 h-10",
+                  activeTab === item.id && "bg-tabys-light text-tabys-primary border border-tabys-primary/20"
+                )}
+                onClick={() => handleItemClick(item.id)}
               >
                 <item.icon className="h-4 w-4" />
                 <span>{item.title}</span>

@@ -2,10 +2,14 @@ import { useState, useEffect } from 'react'
 import { Header } from '@/components/layout/Header'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Dashboard } from '@/pages/Dashboard'
+import ClubsPage from '@/pages/ClubsPage'
+import EventsPage from '@/pages/EventsPage'
+import AIAssistantPage from '@/pages/AIAssistantPage'
 import { blink } from '@/blink/client'
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState('dashboard')
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -16,6 +20,35 @@ function App() {
     })
     return unsubscribe
   }, [])
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return <Dashboard />
+      case 'clubs':
+        return <ClubsPage />
+      case 'events':
+        return <EventsPage />
+      case 'ai-assistant':
+        return <AIAssistantPage />
+      case 'profile':
+        return (
+          <div className="p-6">
+            <h1 className="text-2xl font-bold">Профиль</h1>
+            <p>Страница профиля в разработке</p>
+          </div>
+        )
+      case 'settings':
+        return (
+          <div className="p-6">
+            <h1 className="text-2xl font-bold">Настройки</h1>
+            <p>Страница настроек в разработке</p>
+          </div>
+        )
+      default:
+        return <Dashboard />
+    }
+  }
 
   if (loading) {
     return (
@@ -62,11 +95,15 @@ function App() {
       <div className="flex">
         <Sidebar 
           isOpen={sidebarOpen} 
-          onClose={() => setSidebarOpen(false)} 
+          onClose={() => setSidebarOpen(false)}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
         />
         
         <main className="flex-1 lg:ml-64">
-          <Dashboard />
+          <div className="p-6">
+            {renderContent()}
+          </div>
         </main>
       </div>
     </div>
